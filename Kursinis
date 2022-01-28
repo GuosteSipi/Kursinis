@@ -1,0 +1,223 @@
+#include <iostream>
+#include<stdlib.h>
+#include<iomanip>
+#include <time.h>
+#include<stdio.h>
+
+using namespace std;
+
+void parodyti_langeli(int, int); 
+void langelis();
+void minu_deliojimas(); 
+void zaidimo_eiga(); 
+void sukurti_lentele();
+void isvesti_lentele(char);
+void atidaryti_langeli();
+
+char lentele[10][10];
+char lentele_su_duomenimis[10][10];
+char simbolis; // gali buti a arba b
+int veleveliu_skaicius=0;
+int pazymetu_veleveliu_skaicius=0;
+bool zaidimas_pralaimetas=false;
+bool rezultato_skaiciavimase=false;
+time_t time_since_epoch = time(0);
+time_t game_time;
+
+bool rezultato_skaiciavimas()
+{
+    if(veleveliu_skaicius==10&&pazymetu_veleveliu_skaicius==10)
+    return 1;
+    else
+    return 0;
+}
+//////////////////////////////////
+
+void langelis(int i,int j)
+{
+if(i>=0&&i<10&&j>=0&&j<10&&lentele_su_duomenimis[i][j]!='X')
+lentele_su_duomenimis[i][j]++;
+}
+/////////////////////////////
+void isvesti_lentele(char arr[10][10])
+{
+    cout<<"   ";
+    cout<<"j";
+    for(int i=0;i<10;i++)
+        cout<<setw(3)<<i;
+
+    cout<<endl<<"  ";
+    cout<<"i ";
+    for(int i=0;i<32;i++)
+        cout<<"_";
+        cout<<endl;
+
+    for(int i=0;i<10;i++){
+            cout<<setw(3)<<i<<"|";
+        for(int j=0;j<10;j++)
+            cout<<setw(3)<<arr[i][j];
+            cout<<endl;
+    }
+}
+
+
+///////////////////////////////////////
+
+void minu_deliojimas()
+{
+int skaic=0;
+srand(time(NULL));
+
+for(int i=0;i<10;i++)
+        for(int j=0;j<10;j++)
+            lentele_su_duomenimis[i][j]='0';
+
+        int i=0;
+        int j=0;
+ while(skaic<10)
+    {
+        int i=rand()%10;
+        int j=rand()%10;
+        if(lentele_su_duomenimis[i][j]=='0'){
+            lentele_su_duomenimis[i][j]='X';
+
+            langelis(i-1,j);
+            langelis(i+1,j);
+            langelis(i,j-1);
+            langelis(i,j+1);
+            langelis(i-1,j-1);
+            langelis(i-1,j+1);
+            langelis(i+1,j-1);
+            langelis(i+1,j+1);
+            skaic++;
+        }
+    }
+}
+//////////////////////////////////////
+
+void sukurti_lentele()
+{
+    for(int i=0;i<10;i++)
+        for(int j=0;j<10;j++)
+           lentele[i][j]='*';
+}
+//////////////////////////////////////
+
+
+void pakeisti_velevele()
+{
+int i,j;
+do
+cin>>i>>j;
+while(i<0||i>9||j<0||j>9);
+
+if (lentele[i][j]=='*')
+    {
+    lentele[i][j]='V';
+   veleveliu_skaicius++;
+
+    if(lentele_su_duomenimis[i][j]=='X')
+        pazymetu_veleveliu_skaicius++;
+    }
+
+else if(lentele[i][j]=='V')
+    {
+   lentele[i][j]='*';
+    veleveliu_skaicius--;
+    if(lentele_su_duomenimis[i][j]=='X')
+        pazymetu_veleveliu_skaicius--;
+    }
+}
+/////////////////////////////////////////
+
+void parodyti_langeli(int i,int j)
+{
+if (lentele[i][j]=='*'&&lentele_su_duomenimis[i][j]!='X'&&i>=0&&i<10&&j>=0&&j<10)
+    {
+    lentele[i][j]=lentele_su_duomenimis[i][j];
+
+    if(lentele_su_duomenimis[i][j]=='0')
+        {
+        parodyti_langeli(i,j-1);
+        parodyti_langeli(i,j+1);
+        parodyti_langeli(i-1,j-1);
+        parodyti_langeli(i+1,j-1);
+        parodyti_langeli(i+1,j+1);
+        parodyti_langeli(i-1,j+1);
+        parodyti_langeli(i-1,j);
+        parodyti_langeli(i+1,j);
+        }
+    }
+}
+/////////////////////////////
+
+void atidaryti_langeli()
+{
+int i,j;
+
+do
+cin>>i>>j;
+while(i<0||i>9||j<0||j>9);
+
+if(lentele_su_duomenimis[i][j]=='X')
+    {
+        lentele[i][j]='X';
+        zaidimas_pralaimetas=true;
+
+        for(int i=0;i<10;i++)
+            for(int j=0;j<10;j++)
+                if(lentele_su_duomenimis[i][j]=='X')
+                    lentele[i][j]='X';
+    }
+    else
+        parodyti_langeli(i,j);
+}
+///////////////////////////////////////////
+
+void ivesti_simboli()
+{
+   cin>>simbolis;
+    switch (simbolis){
+    case 'a' : atidaryti_langeli(); break;
+    case 'b' : pakeisti_velevele(); break;
+    default  : ivesti_simboli();
+    }
+}
+  ///////////////////////////////
+
+void zaidimo_eiga()
+{
+    sukurti_lentele();
+    minu_deliojimas();
+
+    while(!zaidimas_pralaimetas&&!rezultato_skaiciavimas())
+    {
+    game_time=time(0);
+    isvesti_lentele(lentele);
+    cout<<endl<<"Rastu veleveliu skaicius:"<<veleveliu_skaicius<<endl;
+    cout<<"Laikas:"<<game_time-time_since_epoch<<endl;
+    ivesti_simboli();
+    }
+
+    if(zaidimas_pralaimetas){
+    isvesti_lentele(lentele);
+    cout<<endl<<"GAME OVER"<<endl;
+    }
+
+    if(rezultato_skaiciavimas())
+    cout<<"Zaidimo laikas:"<<game_time-time_since_epoch<<endl;
+    cout<<endl<<"Laimejote :)"<<endl;
+}
+/////////////////////////////////////
+
+int main()
+{
+cout
+<<"MineSweeper Zaidimo Taisykles:"
+<<endl<<endl<<"Norint atverti langeli-"<<endl<<"1. Iveskite 'a'"<<endl<<"2. Iveskite i reiksme"<<endl<<"3. Iveskite j reiksme"
+<<endl<<endl<<"Norint pastatyti/nuimti velevele-"<<endl<<"1. Iveskite 'b'"<<endl<<"2. Iveskite i reiksme"<<endl<<"3. Iveskite j reiksme"<<endl<<endl;
+
+
+zaidimo_eiga();
+return 0;
+}
